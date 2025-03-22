@@ -18,8 +18,26 @@ import {
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
 
+interface Driver {
+  id: number;
+  driver_name: string;
+  phone_number: string;
+  vehicle_type: string;
+  vehicle_number: string;
+  vehicle_color: string;
+  created_at: string;
+}
+
+interface DriverFormData {
+  driver_name: string;
+  phone_number: string;
+  vehicle_type: string;
+  vehicle_number: string;
+  vehicle_color: string;
+}
+
 // Sample data - replace with actual API calls
-const initialDrivers = [
+const initialDrivers: Driver[] = [
   {
     id: 1,
     driver_name: 'محمود البتك',
@@ -33,8 +51,8 @@ const initialDrivers = [
 
 export default function DriversPage() {
   const [open, setOpen] = useState(false);
-  const [drivers, setDrivers] = useState(initialDrivers);
-  const [formData, setFormData] = useState({
+  const [drivers, setDrivers] = useState<Driver[]>(initialDrivers);
+  const [formData, setFormData] = useState<DriverFormData>({
     driver_name: '',
     phone_number: '',
     vehicle_type: '',
@@ -42,7 +60,7 @@ export default function DriversPage() {
     vehicle_color: '',
   });
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<Driver>[] = [
     { field: 'id', headerName: 'الرقم', width: 90 },
     { field: 'driver_name', headerName: 'اسم السائق', width: 200 },
     { field: 'phone_number', headerName: 'رقم الهاتف', width: 150 },
@@ -53,7 +71,7 @@ export default function DriversPage() {
       field: 'created_at',
       headerName: 'تاريخ الإنشاء',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
+      valueFormatter: (params: { value: string }) => new Date(params.value).toLocaleString('ar-SA'),
     },
     {
       field: 'actions',
@@ -92,7 +110,7 @@ export default function DriversPage() {
     });
   };
 
-  const handleEdit = (driver: any) => {
+  const handleEdit = (driver: Driver) => {
     setFormData({
       driver_name: driver.driver_name,
       phone_number: driver.phone_number,
@@ -129,12 +147,13 @@ export default function DriversPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <DataGrid<Driver>
         rows={drivers}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        disableSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        disableRowSelectionOnClick
         autoHeight
       />
 

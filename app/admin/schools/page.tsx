@@ -13,56 +13,41 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
+import { School, SchoolFormData } from '../types';
 
 // Sample data - replace with actual API calls
-const initialSchools = [
+const initialSchools: School[] = [
   {
     id: 1,
     school_name: 'مدرسة النور',
-    address: 'شارع الملك عبدالله',
-    phone_number: '06-1234567',
-    email: 'info@nour-school.com',
-    created_at: '2025-02-13 23:03:54',
-    updated_at: '2025-02-20 16:13:41',
-  },
-  {
-    id: 2,
-    school_name: 'مدرسة السلام',
-    address: 'شارع المدينة المنورة',
-    phone_number: '06-7654321',
-    email: 'info@salam-school.com',
-    created_at: '2025-02-13 23:03:54',
-    updated_at: '2025-02-13 23:03:54',
+    address: 'عمان، الأردن',
+    phone: '+962786752056',
+    email: 'noor@example.com',
+    created_at: '2025-02-09 23:59:00',
   },
 ];
 
 export default function SchoolsPage() {
   const [open, setOpen] = useState(false);
-  const [schools, setSchools] = useState(initialSchools);
-  const [formData, setFormData] = useState({
+  const [schools, setSchools] = useState<School[]>(initialSchools);
+  const [formData, setFormData] = useState<SchoolFormData>({
     school_name: '',
     address: '',
-    phone_number: '',
+    phone: '',
     email: '',
   });
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<School>[] = [
     { field: 'id', headerName: 'الرقم', width: 90 },
     { field: 'school_name', headerName: 'اسم المدرسة', width: 200 },
-    { field: 'address', headerName: 'العنوان', width: 250 },
-    { field: 'phone_number', headerName: 'رقم الهاتف', width: 150 },
+    { field: 'address', headerName: 'العنوان', width: 200 },
+    { field: 'phone', headerName: 'رقم الهاتف', width: 150 },
     { field: 'email', headerName: 'البريد الإلكتروني', width: 200 },
     {
       field: 'created_at',
       headerName: 'تاريخ الإنشاء',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
-    },
-    {
-      field: 'updated_at',
-      headerName: 'آخر تحديث',
-      width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
+      valueFormatter: (params: { value: string }) => new Date(params.value).toLocaleString('ar-SA'),
     },
     {
       field: 'actions',
@@ -95,16 +80,16 @@ export default function SchoolsPage() {
     setFormData({
       school_name: '',
       address: '',
-      phone_number: '',
+      phone: '',
       email: '',
     });
   };
 
-  const handleEdit = (school: any) => {
+  const handleEdit = (school: School) => {
     setFormData({
       school_name: school.school_name,
       address: school.address,
-      phone_number: school.phone_number,
+      phone: school.phone,
       email: school.email,
     });
     setOpen(true);
@@ -136,12 +121,13 @@ export default function SchoolsPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <DataGrid<School>
         rows={schools}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        disableSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        disableRowSelectionOnClick
         autoHeight
       />
 
@@ -166,6 +152,8 @@ export default function SchoolsPage() {
             label="العنوان"
             fullWidth
             variant="outlined"
+            multiline
+            rows={3}
             value={formData.address}
             onChange={(e) =>
               setFormData({ ...formData, address: e.target.value })
@@ -176,9 +164,9 @@ export default function SchoolsPage() {
             label="رقم الهاتف"
             fullWidth
             variant="outlined"
-            value={formData.phone_number}
+            value={formData.phone}
             onChange={(e) =>
-              setFormData({ ...formData, phone_number: e.target.value })
+              setFormData({ ...formData, phone: e.target.value })
             }
           />
           <TextField
@@ -186,7 +174,6 @@ export default function SchoolsPage() {
             label="البريد الإلكتروني"
             fullWidth
             variant="outlined"
-            type="email"
             value={formData.email}
             onChange={(e) =>
               setFormData({ ...formData, email: e.target.value })

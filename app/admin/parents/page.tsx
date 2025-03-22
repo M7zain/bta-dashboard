@@ -10,73 +10,44 @@ import {
   DialogContent,
   DialogActions,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
+import { Parent, ParentFormData } from '../types';
 
 // Sample data - replace with actual API calls
-const initialParents = [
+const initialParents: Parent[] = [
   {
     id: 1,
-    parent_name: 'مختار الفالوجي',
-    phone_number: '9627971198',
-    latitude: 39.42238289,
-    longitude: 29.98776801,
-    created_at: '2025-02-13 23:03:54',
-    updated_at: '2025-02-20 16:13:41',
-  },
-  {
-    id: 2,
-    parent_name: 'محمود البتك',
-    phone_number: '+98777777',
-    latitude: null,
-    longitude: null,
-    created_at: '2025-02-13 23:03:54',
-    updated_at: '2025-02-13 23:03:54',
+    parent_name: 'محمد أحمد',
+    phone_number: '+962786752056',
+    email: 'mohammed@example.com',
+    address: 'عمان، الأردن',
+    created_at: '2025-02-09 23:59:00',
   },
 ];
 
 export default function ParentsPage() {
   const [open, setOpen] = useState(false);
-  const [parents, setParents] = useState(initialParents);
-  const [formData, setFormData] = useState({
+  const [parents, setParents] = useState<Parent[]>(initialParents);
+  const [formData, setFormData] = useState<ParentFormData>({
     parent_name: '',
     phone_number: '',
-    latitude: '',
-    longitude: '',
+    email: '',
+    address: '',
   });
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<Parent>[] = [
     { field: 'id', headerName: 'الرقم', width: 90 },
     { field: 'parent_name', headerName: 'اسم ولي الأمر', width: 200 },
     { field: 'phone_number', headerName: 'رقم الهاتف', width: 150 },
-    {
-      field: 'location',
-      headerName: 'الموقع',
-      width: 200,
-      renderCell: (params) => (
-        <Typography>
-          {params.row.latitude && params.row.longitude
-            ? `${params.row.latitude}, ${params.row.longitude}`
-            : 'غير محدد'}
-        </Typography>
-      ),
-    },
+    { field: 'email', headerName: 'البريد الإلكتروني', width: 200 },
+    { field: 'address', headerName: 'العنوان', width: 200 },
     {
       field: 'created_at',
       headerName: 'تاريخ الإنشاء',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
-    },
-    {
-      field: 'updated_at',
-      headerName: 'آخر تحديث',
-      width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
+      valueFormatter: (params: { value: string }) => new Date(params.value).toLocaleString('ar-SA'),
     },
     {
       field: 'actions',
@@ -109,17 +80,17 @@ export default function ParentsPage() {
     setFormData({
       parent_name: '',
       phone_number: '',
-      latitude: '',
-      longitude: '',
+      email: '',
+      address: '',
     });
   };
 
-  const handleEdit = (parent: any) => {
+  const handleEdit = (parent: Parent) => {
     setFormData({
       parent_name: parent.parent_name,
       phone_number: parent.phone_number,
-      latitude: parent.latitude || '',
-      longitude: parent.longitude || '',
+      email: parent.email,
+      address: parent.address,
     });
     setOpen(true);
   };
@@ -150,12 +121,13 @@ export default function ParentsPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <DataGrid<Parent>
         rows={parents}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        disableSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        disableRowSelectionOnClick
         autoHeight
       />
 
@@ -187,24 +159,24 @@ export default function ParentsPage() {
           />
           <TextField
             margin="dense"
-            label="خط العرض"
+            label="البريد الإلكتروني"
             fullWidth
             variant="outlined"
-            type="number"
-            value={formData.latitude}
+            value={formData.email}
             onChange={(e) =>
-              setFormData({ ...formData, latitude: e.target.value })
+              setFormData({ ...formData, email: e.target.value })
             }
           />
           <TextField
             margin="dense"
-            label="خط الطول"
+            label="العنوان"
             fullWidth
             variant="outlined"
-            type="number"
-            value={formData.longitude}
+            multiline
+            rows={3}
+            value={formData.address}
             onChange={(e) =>
-              setFormData({ ...formData, longitude: e.target.value })
+              setFormData({ ...formData, address: e.target.value })
             }
           />
         </DialogContent>

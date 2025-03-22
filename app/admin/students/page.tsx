@@ -17,50 +17,48 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
+import { Student, StudentFormData } from '../types';
 
 // Sample data - replace with actual API calls
-const initialStudents = [
+const initialStudents: Student[] = [
   {
     id: 1,
-    student_name: 'احمد احمد',
-    parent_name: 'مختار الفالوجي',
-    parent_phone: '9627971198',
-    created_at: '2025-02-08 06:06:30',
-  },
-  {
-    id: 2,
-    student_name: 'محمد محمد',
-    parent_name: 'مختار الفالوجي',
-    parent_phone: '9627971198',
-    created_at: '2025-02-08 06:06:30',
-  },
-  {
-    id: 3,
-    student_name: 'مها المصري',
-    parent_name: 'محمود البتك',
-    parent_phone: '+98777777',
-    created_at: '2025-02-08 06:06:55',
+    student_name: 'أحمد محمد',
+    parent_name: 'محمد أحمد',
+    parent_phone: '+962786752056',
+    school_id: 1,
+    school_name: 'مدرسة النور',
+    grade: 'الصف الأول',
+    class: 'أ',
+    created_at: '2025-02-09 23:59:00',
   },
 ];
 
 export default function StudentsPage() {
   const [open, setOpen] = useState(false);
-  const [students, setStudents] = useState(initialStudents);
-  const [formData, setFormData] = useState({
+  const [students, setStudents] = useState<Student[]>(initialStudents);
+  const [formData, setFormData] = useState<StudentFormData>({
     student_name: '',
-    parent_id: '',
+    parent_name: '',
+    parent_phone: '',
+    school_id: 0,
+    grade: '',
+    class: '',
   });
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<Student>[] = [
     { field: 'id', headerName: 'الرقم', width: 90 },
     { field: 'student_name', headerName: 'اسم الطالب', width: 200 },
     { field: 'parent_name', headerName: 'اسم ولي الأمر', width: 200 },
     { field: 'parent_phone', headerName: 'رقم هاتف ولي الأمر', width: 150 },
+    { field: 'school_name', headerName: 'المدرسة', width: 200 },
+    { field: 'grade', headerName: 'الصف', width: 130 },
+    { field: 'class', headerName: 'الصف', width: 90 },
     {
       field: 'created_at',
       headerName: 'تاريخ الإنشاء',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
+      valueFormatter: (params: { value: string }) => new Date(params.value).toLocaleString('ar-SA'),
     },
     {
       field: 'actions',
@@ -90,13 +88,24 @@ export default function StudentsPage() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
-    setFormData({ student_name: '', parent_id: '' });
+    setFormData({
+      student_name: '',
+      parent_name: '',
+      parent_phone: '',
+      school_id: 0,
+      grade: '',
+      class: '',
+    });
   };
 
-  const handleEdit = (student: any) => {
+  const handleEdit = (student: Student) => {
     setFormData({
       student_name: student.student_name,
-      parent_id: student.parent_id,
+      parent_name: student.parent_name,
+      parent_phone: student.parent_phone,
+      school_id: student.school_id,
+      grade: student.grade,
+      class: student.class,
     });
     setOpen(true);
   };
@@ -127,12 +136,13 @@ export default function StudentsPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <DataGrid<Student>
         rows={students}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        disableSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        disableRowSelectionOnClick
         autoHeight
       />
 
@@ -152,17 +162,68 @@ export default function StudentsPage() {
               setFormData({ ...formData, student_name: e.target.value })
             }
           />
+          <TextField
+            margin="dense"
+            label="اسم ولي الأمر"
+            fullWidth
+            variant="outlined"
+            value={formData.parent_name}
+            onChange={(e) =>
+              setFormData({ ...formData, parent_name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="رقم هاتف ولي الأمر"
+            fullWidth
+            variant="outlined"
+            value={formData.parent_phone}
+            onChange={(e) =>
+              setFormData({ ...formData, parent_phone: e.target.value })
+            }
+          />
+
           <FormControl fullWidth margin="dense">
-            <InputLabel>ولي الأمر</InputLabel>
+            <InputLabel>المدرسة</InputLabel>
             <Select
-              value={formData.parent_id}
-              label="ولي الأمر"
+              value={formData.school_id}
+              label="المدرسة"
               onChange={(e) =>
-                setFormData({ ...formData, parent_id: e.target.value })
+                setFormData({ ...formData, school_id: Number(e.target.value) })
               }
             >
-              <MenuItem value={1}>مختار الفالوجي</MenuItem>
-              <MenuItem value={2}>محمود البتك</MenuItem>
+              <MenuItem value={1}>مدرسة النور</MenuItem>
+              <MenuItem value={2}>مدرسة السلام</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>الصف</InputLabel>
+            <Select
+              value={formData.grade}
+              label="الصف"
+              onChange={(e) =>
+                setFormData({ ...formData, grade: e.target.value })
+              }
+            >
+              <MenuItem value="الصف الأول">الصف الأول</MenuItem>
+              <MenuItem value="الصف الثاني">الصف الثاني</MenuItem>
+              <MenuItem value="الصف الثالث">الصف الثالث</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth margin="dense">
+            <InputLabel>الصف</InputLabel>
+            <Select
+              value={formData.class}
+              label="الصف"
+              onChange={(e) =>
+                setFormData({ ...formData, class: e.target.value })
+              }
+            >
+              <MenuItem value="أ">أ</MenuItem>
+              <MenuItem value="ب">ب</MenuItem>
+              <MenuItem value="ج">ج</MenuItem>
             </Select>
           </FormControl>
         </DialogContent>

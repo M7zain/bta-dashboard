@@ -19,6 +19,7 @@ import PageLayout from '../components/PageLayout';
 import FormDialog from '../components/FormDialog';
 import EnhancedDataGrid from '../components/EnhancedDataGrid';
 import { GridColDef } from '@mui/x-data-grid';
+import { Trip } from '../types';
 
 // Sample data - replace with actual API calls
 const initialTrips = [
@@ -46,14 +47,14 @@ const initialTrips = [
   },
 ];
 
-const statusColors: Record<string, 'success' | 'primary' | 'info' | 'error' | 'warning'> = {
+const statusColors: Record<Trip['status'], 'success' | 'primary' | 'info' | 'error' | 'warning'> = {
   completed: 'success',
   in_progress: 'primary',
   scheduled: 'info',
   cancelled: 'error',
 };
 
-const statusLabels = {
+const statusLabels: Record<Trip['status'], string> = {
   completed: 'مكتمل',
   in_progress: 'قيد التنفيذ',
   scheduled: 'مجدول',
@@ -85,8 +86,8 @@ export default function TripsPage() {
       width: 130,
       renderCell: (params) => (
         <Chip
-          label={statusLabels[params.value as keyof typeof statusLabels]}
-          color={statusColors[params.value as keyof typeof statusColors]}
+          label={statusLabels[params.value as Trip['status']]}
+          color={statusColors[params.value as Trip['status']]}
           size="small"
         />
       ),

@@ -18,11 +18,13 @@ import {
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Add as AddIcon } from '@mui/icons-material';
+import { Absence, AbsenceFormData } from '../types';
 
 // Sample data - replace with actual API calls
-const initialAbsences = [
+const initialAbsences: Absence[] = [
   {
     id: 1,
+    student_id: 1,
     student_name: 'أحمد محمد',
     parent_name: 'محمد أحمد',
     date: '2025-02-20',
@@ -32,6 +34,7 @@ const initialAbsences = [
   },
   {
     id: 2,
+    student_id: 2,
     student_name: 'سارة خالد',
     parent_name: 'خالد سارة',
     date: '2025-02-20',
@@ -41,27 +44,27 @@ const initialAbsences = [
   },
 ];
 
-const typeColors = {
+const typeColors: Record<Absence['type'], 'success' | 'primary' | 'info' | 'error' | 'warning'> = {
   excused: 'success',
   unexcused: 'error',
 };
 
-const typeLabels = {
+const typeLabels: Record<Absence['type'], string> = {
   excused: 'معذور',
   unexcused: 'غير معذور',
 };
 
 export default function AbsencesPage() {
   const [open, setOpen] = useState(false);
-  const [absences, setAbsences] = useState(initialAbsences);
-  const [formData, setFormData] = useState({
-    student_id: '',
+  const [absences, setAbsences] = useState<Absence[]>(initialAbsences);
+  const [formData, setFormData] = useState<AbsenceFormData>({
+    student_id: 0,
     date: '',
     type: 'excused',
     reason: '',
   });
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<Absence>[] = [
     { field: 'id', headerName: 'الرقم', width: 90 },
     { field: 'student_name', headerName: 'اسم الطالب', width: 200 },
     { field: 'parent_name', headerName: 'اسم ولي الأمر', width: 200 },
@@ -72,8 +75,8 @@ export default function AbsencesPage() {
       width: 130,
       renderCell: (params) => (
         <Chip
-          label={typeLabels[params.value as keyof typeof typeLabels]}
-          color={typeColors[params.value as keyof typeof typeColors]}
+          label={typeLabels[params.value as Absence['type']]}
+          color={typeColors[params.value as Absence['type']]}
         />
       ),
     },
@@ -82,7 +85,7 @@ export default function AbsencesPage() {
       field: 'created_at',
       headerName: 'تاريخ الإنشاء',
       width: 180,
-      valueFormatter: (params) => new Date(params.value).toLocaleString('ar-SA'),
+      valueFormatter: (params: { value: string }) => new Date(params.value).toLocaleString('ar-SA'),
     },
     {
       field: 'actions',
@@ -113,14 +116,14 @@ export default function AbsencesPage() {
   const handleClose = () => {
     setOpen(false);
     setFormData({
-      student_id: '',
+      student_id: 0,
       date: '',
       type: 'excused',
       reason: '',
     });
   };
 
-  const handleEdit = (absence: any) => {
+  const handleEdit = (absence: Absence) => {
     setFormData({
       student_id: absence.student_id,
       date: absence.date,
@@ -156,12 +159,13 @@ export default function AbsencesPage() {
         </Button>
       </Box>
 
-      <DataGrid
+      <DataGrid<Absence>
         rows={absences}
         columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        disableSelectionOnClick
+        initialState={{
+          pagination: { paginationModel: { pageSize: 10 } },
+        }}
+        disableRowSelectionOnClick
         autoHeight
       />
 
@@ -176,11 +180,11 @@ export default function AbsencesPage() {
               value={formData.student_id}
               label="الطالب"
               onChange={(e) =>
-                setFormData({ ...formData, student_id: e.target.value })
+                setFormData({ ...formData, student_id: Number(e.target.value) })
               }
             >
-              <MenuItem value="1">أحمد محمد</MenuItem>
-              <MenuItem value="2">سارة خالد</MenuItem>
+              <MenuItem value={1}>أحمد محمد</MenuItem>
+              <MenuItem value={2}>سارة خالد</MenuItem>
             </Select>
           </FormControl>
 
@@ -203,7 +207,7 @@ export default function AbsencesPage() {
               value={formData.type}
               label="نوع الغياب"
               onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
+                setFormData({ ...formData, type: e.target.value as Absence['type'] })
               }
             >
               <MenuItem value="excused">معذور</MenuItem>

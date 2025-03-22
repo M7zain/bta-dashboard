@@ -31,6 +31,36 @@ import {
   Info as InfoIcon,
 } from '@mui/icons-material';
 
+type NotificationType = 'info' | 'warning' | 'error' | 'success';
+
+interface Notification {
+  id: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  created_at: string;
+}
+
+interface NotificationFormData {
+  title: string;
+  message: string;
+  type: NotificationType;
+}
+
+const typeColors: Record<NotificationType, 'success' | 'primary' | 'info' | 'error' | 'warning'> = {
+  info: 'info',
+  warning: 'warning',
+  error: 'error',
+  success: 'success',
+};
+
+const typeLabels: Record<NotificationType, string> = {
+  info: 'معلومات',
+  warning: 'تحذير',
+  error: 'خطأ',
+  success: 'نجاح',
+};
+
 // Sample data - replace with actual API calls
 const initialNotifications = [
   {
@@ -50,13 +80,6 @@ const initialNotifications = [
     read: true,
   },
 ];
-
-const typeColors = {
-  success: 'success',
-  warning: 'warning',
-  error: 'error',
-  info: 'info',
-};
 
 const typeIcons = {
   success: <CheckCircleIcon />,
@@ -138,8 +161,8 @@ export default function NotificationsPage() {
                   </Typography>
                   <Chip
                     size="small"
-                    label={notification.type}
-                    color={typeColors[notification.type as keyof typeof typeColors]}
+                    label={typeLabels[notification.type as NotificationType]}
+                    color={typeColors[notification.type as NotificationType]}
                   />
                 </Box>
               }
@@ -197,7 +220,7 @@ export default function NotificationsPage() {
               value={formData.type}
               label="النوع"
               onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
+                setFormData({ ...formData, type: e.target.value as NotificationType })
               }
             >
               <MenuItem value="success">نجاح</MenuItem>
